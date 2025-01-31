@@ -10,6 +10,9 @@ import UIKit
 
 class OnboardingViewController : UIViewController {
     
+    let labeltext : String
+    let imageName : String
+    
     lazy var stackView : UIStackView = {
         let stackView = UIStackView()
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -23,7 +26,7 @@ class OnboardingViewController : UIViewController {
     lazy var label: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Bankey is faster, easier to use, and has a brand new look and feeel that will make you feel like you are back in 1989"
+        label.text = labeltext
         label.font = UIFont.preferredFont(forTextStyle: .title3)
         label.textAlignment = .center
         label.numberOfLines = 0
@@ -35,9 +38,23 @@ class OnboardingViewController : UIViewController {
         let imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.contentMode = .scaleAspectFit
-        imageView.image = UIImage(named: "delorean")
+        
+        imageView.image = UIImage(named: imageName)
+        
         return imageView
     }()
+    
+    init(withImage imageName : String, withText text : String) {
+        
+        self.imageName = imageName
+        self.labeltext = text
+        
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -46,6 +63,8 @@ class OnboardingViewController : UIViewController {
     }
     
     private func setupViews(){
+        
+        view.backgroundColor = .systemBackground
         view.addSubview(stackView)
         
         stackView.addArrangedSubview(imageView)
