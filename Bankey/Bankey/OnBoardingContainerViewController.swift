@@ -7,7 +7,13 @@
 
 import UIKit
 
+protocol OnboardingContainerViewControllerDelegate : AnyObject  {
+    func didFinishOnboarding()
+}
+
 class OnboardingContainerViewController: UIViewController {
+    
+    weak var delegate : OnboardingContainerViewControllerDelegate?
 
     let pageViewController: UIPageViewController
     var pages = [UIViewController]()
@@ -15,6 +21,17 @@ class OnboardingContainerViewController: UIViewController {
         didSet {
         }
     }
+    
+    lazy var closeButton : UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle("Close", for: [])
+        button.addTarget(self, action: #selector(closeButtonTapped), for: .primaryActionTriggered)
+        button.setTitleColor(.systemBlue, for: [])
+        return button
+    }()
+    
+    
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         self.pageViewController = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
@@ -48,11 +65,19 @@ class OnboardingContainerViewController: UIViewController {
         pageViewController.dataSource = self
         pageViewController.view.translatesAutoresizingMaskIntoConstraints = false
         
+        view.addSubview(closeButton)
+        
+        
         NSLayoutConstraint.activate([
             view.topAnchor.constraint(equalTo: pageViewController.view.topAnchor),
             view.leadingAnchor.constraint(equalTo: pageViewController.view.leadingAnchor),
             view.trailingAnchor.constraint(equalTo: pageViewController.view.trailingAnchor),
             view.bottomAnchor.constraint(equalTo: pageViewController.view.bottomAnchor),
+            
+            closeButton.topAnchor.constraint(equalTo: view.topAnchor,constant: 56),
+            closeButton.leadingAnchor.constraint(equalTo: view.leadingAnchor,constant: 26),
+            
+            
         ])
         
         pageViewController.setViewControllers([pages.first!], direction: .forward, animated: false, completion: nil)
@@ -92,24 +117,10 @@ extension OnboardingContainerViewController: UIPageViewControllerDataSource {
     }
 }
 
-// MARK: - ViewControllers
-class ViewController1: UIViewController {
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        view.backgroundColor = .systemRed
+//MARK: actions
+extension OnboardingContainerViewController {
+    @objc func closeButtonTapped() {
+        delegate?.didFinishOnboarding()
     }
 }
 
-class ViewController2: UIViewController {
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        view.backgroundColor = .systemGreen
-    }
-}
-
-class ViewController3: UIViewController {
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        view.backgroundColor = .systemBlue
-    }
-}

@@ -44,6 +44,24 @@ class OnboardingViewController : UIViewController {
         return imageView
     }()
     
+    lazy var nextButton : UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle("Next", for: [])
+        //button.addTarget(self, action: #selector(closeButtonTapped), for: .primaryActionTriggered)
+        button.setTitleColor(.systemBlue, for: [])
+        return button
+    }()
+    
+    lazy var previousButton : UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle("Prev", for: [])
+        //button.addTarget(self, action: #selector(closeButtonTapped), for: .primaryActionTriggered)
+        button.setTitleColor(.systemBlue, for: [])
+        return button
+    }()
+    
     init(withImage imageName : String, withText text : String) {
         
         self.imageName = imageName
@@ -70,10 +88,16 @@ class OnboardingViewController : UIViewController {
         stackView.addArrangedSubview(imageView)
         stackView.addArrangedSubview(label)
         
+        view.addSubview(nextButton)
+        view.addSubview(previousButton)
+        
         NSLayoutConstraint.activate([
             stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor,constant: 16),
-            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
+            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            
+            previousButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 100),
+            previousButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 32)
         ])
     }
 }
