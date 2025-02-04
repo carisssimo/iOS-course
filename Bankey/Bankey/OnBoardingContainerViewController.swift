@@ -47,6 +47,10 @@ class OnboardingContainerViewController: UIViewController {
         currentVC = pages.first!
         
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
+        
+        page1.delegate = self
+        page2.delegate = self
+        page3.delegate = self
     }
     
     required init?(coder: NSCoder) {
@@ -115,6 +119,27 @@ extension OnboardingContainerViewController: UIPageViewControllerDataSource {
     func presentationIndex(for pageViewController: UIPageViewController) -> Int {
         return pages.firstIndex(of: self.currentVC) ?? 0
     }
+}
+
+//MARK: OnBoardingViewControllerDelegate
+extension  OnboardingContainerViewController : OnBoardingViewControllerDelegate {
+    func didTapNextButton() {
+        if let nextVC = getNextViewController(from: currentVC){
+            pageViewController.setViewControllers([nextVC], direction: .forward, animated: true, completion: nil)
+            currentVC = nextVC
+        }
+        
+    }
+    
+    func didTapPrevButton() {
+        if let prevVC = getPreviousViewController(from: currentVC){
+            pageViewController.setViewControllers([prevVC], direction: .reverse, animated: true, completion: nil)
+            currentVC = prevVC
+        }
+        
+    }
+    
+    
 }
 
 //MARK: actions

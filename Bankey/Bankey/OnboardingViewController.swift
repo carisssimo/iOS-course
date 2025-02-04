@@ -8,7 +8,14 @@
 import Foundation
 import UIKit
 
+protocol OnBoardingViewControllerDelegate : AnyObject {
+    func didTapNextButton()
+    func didTapPrevButton()
+}
+
 class OnboardingViewController : UIViewController {
+    
+    weak var delegate :  OnBoardingViewControllerDelegate?
     
     let labeltext : String
     let imageName : String
@@ -48,7 +55,7 @@ class OnboardingViewController : UIViewController {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("Next", for: [])
-        //button.addTarget(self, action: #selector(closeButtonTapped), for: .primaryActionTriggered)
+        button.addTarget(self, action: #selector(nextButtonTapped), for: .primaryActionTriggered)
         button.setTitleColor(.systemBlue, for: [])
         return button
     }()
@@ -57,7 +64,7 @@ class OnboardingViewController : UIViewController {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("Prev", for: [])
-        //button.addTarget(self, action: #selector(closeButtonTapped), for: .primaryActionTriggered)
+        button.addTarget(self, action: #selector(prevButtonTapped), for: .primaryActionTriggered)
         button.setTitleColor(.systemBlue, for: [])
         return button
     }()
@@ -96,8 +103,22 @@ class OnboardingViewController : UIViewController {
             stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor,constant: 16),
             stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             
-            previousButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 100),
-            previousButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 32)
+            previousButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -20),
+            previousButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 32),
+            
+            nextButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -20),
+            nextButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -32),
         ])
+    }
+}
+
+//MARK: action
+extension OnboardingViewController {
+    @objc func nextButtonTapped() {
+        delegate?.didTapNextButton()
+    }
+    
+    @objc func prevButtonTapped(){
+        delegate?.didTapPrevButton()
     }
 }
