@@ -26,7 +26,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window?.makeKeyAndVisible()
         window?.backgroundColor = .systemBackground
         loginViewController.delegate = self
-        window?.rootViewController = mainViewController
+        window?.rootViewController = AccountSummaryViewController()
         onboardingContainerViewController.delegate = self
         dummyViewController.delegate = self
 
