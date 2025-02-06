@@ -10,6 +10,17 @@ import UIKit
 
 class  AccountSummaryCell : UITableViewCell {
     
+    enum AccountType : String {
+        case Banking
+        case CreditCard
+        case Investment
+    }
+    
+    struct AccountViewModel {
+        let accountType : AccountType
+        let accountName : String
+    }
+    
     static let reuseID = "AccountSummaryCell"
     static let rowHeight : CGFloat = 112
     
@@ -130,5 +141,22 @@ extension AccountSummaryCell {
         rootString.append(centString)
         
         return rootString
+    }
+}
+
+extension AccountSummaryCell {
+    func configure(with viewModel: AccountViewModel){
+        typeLabel.text = viewModel.accountType.rawValue
+        nameLabel.text = viewModel.accountName
+        
+        switch viewModel.accountType {
+            
+        case .Banking:
+            underlineView.backgroundColor = appColor
+        case .CreditCard:
+            underlineView.backgroundColor = .systemOrange
+        case .Investment:
+            underlineView.backgroundColor = .systemPurple
+        }
     }
 }
