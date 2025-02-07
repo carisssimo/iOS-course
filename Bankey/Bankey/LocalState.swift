@@ -12,7 +12,7 @@ public class LocalState {
         case hasOnBoarded
     }
     
-    public static var hasOnBoarded : Bool {
+    public static var hasOnboarded : Bool {
         get {
             return UserDefaults.standard.bool(forKey: Keys.hasOnBoarded.rawValue)
         }
