@@ -16,9 +16,14 @@ class  AccountSummaryCell : UITableViewCell {
         case Investment
     }
     
-    struct AccountViewModel {
+    struct ViewModel {
         let accountType : AccountType
         let accountName : String
+        let balance : Decimal
+        
+        var balanceAsAttributedString: NSAttributedString {
+            return CurrencyFormatter().makeAttributedCurrency(balance)
+        }
     }
     
     static let reuseID = "AccountSummaryCell"
@@ -74,7 +79,7 @@ class  AccountSummaryCell : UITableViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
 //        label.font = UIFont.preferredFont(forTextStyle: .body)
 //        label.text = "$929,466.63"
-        label.attributedText = makeFormattedBalance(dollars: "929,466", cents: "63")
+        label.attributedText = makeFormattedBalance(dollars: "XXX,XXX", cents: "XX")
         return label
     }()
     
@@ -145,9 +150,10 @@ extension AccountSummaryCell {
 }
 
 extension AccountSummaryCell {
-    func configure(with viewModel: AccountViewModel){
+    func configure(with viewModel: ViewModel){
         typeLabel.text = viewModel.accountType.rawValue
         nameLabel.text = viewModel.accountName
+        balanceAmountLabel.attributedText = viewModel.balanceAsAttributedString
         
         switch viewModel.accountType {
             
