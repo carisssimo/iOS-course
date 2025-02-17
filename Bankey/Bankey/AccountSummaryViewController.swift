@@ -11,8 +11,10 @@ class AccountSummaryViewController: UIViewController {
     //Data
     var profile : Profile?
     var accounts : [Account] = []
+    
 //    |
 //    V
+    
     //View models
     var headerViewModel = AccountSummaryHeaderView.ViewModel(welcomeMessage: "Welcome", name: "", date: Date())
     var accountCellViewModels : [AccountSummaryCell.ViewModel] = []
@@ -29,8 +31,7 @@ class AccountSummaryViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupViews()
-//        fetchAccounts
-        fetchDataAndLoadViews()
+        fetchData()
     }
 }
 
@@ -137,29 +138,39 @@ extension AccountSummaryViewController {
 
 //MARK: Networking
 extension AccountSummaryViewController {
-    private func fetchDataAndLoadViews() {
+    private func fetchData() {
+        let group = DispatchGroup()
+        
+        group.enter()
         fetchProfile(forUserId: "1", completion: { result in
             switch result {
             case .success(let profile) :
                 self.profile = profile
                 self.configureTableViewHeader(with: profile)
-                self.tableView.reloadData()
+      
             case .failure(let error) :
                 print(error.localizedDescription)
             }
-            
+            group.leave()
         })
         
+        group.enter()
         fetchAccounts(forUserId: "1") { result in
             switch result {
             case .success(let accounts):
                 self.accounts = accounts
                 self.configureTableCells(with: accounts)
-                self.tableView.reloadData()
+                
             case .failure(let error):
                 print(error.localizedDescription)
             }
+            group.leave()
         }
+        
+        group.notify(queue: .main){
+            self.tableView.reloadData()
+        }
+       
     }
     
     private func configureTableViewHeader(with profile : Profile){
