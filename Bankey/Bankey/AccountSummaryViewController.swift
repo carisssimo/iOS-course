@@ -19,9 +19,19 @@ class AccountSummaryViewController: UIViewController {
     var headerViewModel = AccountSummaryHeaderView.ViewModel(welcomeMessage: "Welcome", name: "", date: Date())
     var accountCellViewModels : [AccountSummaryCell.ViewModel] = []
     
+    //Components
     var tableView = UITableView()
     var accountSummaryHeaderView = AccountSummaryHeaderView(frame: .zero)
     let refreshControl = UIRefreshControl()
+    
+    //Networking
+    var profileManager: ProfileManageable = ProfileManager()
+    
+    lazy var errorAlert : UIAlertController = {
+        let alert = UIAlertController()
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        return alert
+    }()
     
     var isLoaded = false
     
@@ -34,7 +44,7 @@ class AccountSummaryViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupViews()
-        //fetchData()
+        fetchData()
     }
 }
 
@@ -130,78 +140,92 @@ extension  AccountSummaryViewController {
     }
     
     @objc func refreshContent(){
+        reset()
+        setupSkeletons()
+        tableView.reloadData()
         fetchData()
+    }
+    
+    private func reset(){
+        profile = nil
+        accounts = []
+        isLoaded = false
     }
 }
 
-//MARK: fake call
-extension AccountSummaryViewController {
-    private func fetchAccounts(){
-        let savings = AccountSummaryCell.ViewModel(accountType: .Banking,
-                                                   accountName: "Basic Savings",
-                                                   balance: 929466.23)
-        let chequing = AccountSummaryCell.ViewModel(accountType: .Banking,
-                                                    accountName: "No-Fee All-In Chequing",
-                                                    balance: 17562.44)
-        let visa = AccountSummaryCell.ViewModel(accountType: .CreditCard,
-                                                accountName: "Visa Avion Card",
-                                                balance: 412.83)
-        let masterCard = AccountSummaryCell.ViewModel(accountType: .CreditCard,
-                                                      accountName: "Student Mastercard",
-                                                      balance: 50.83)
-        let investment1 = AccountSummaryCell.ViewModel(accountType: .Investment,
-                                                       accountName: "Tax-Free Saver",
-                                                       balance: 2000.00)
-        let investment2 = AccountSummaryCell.ViewModel(accountType: .Investment,
-                                                       accountName: "Growth Fund",
-                                                       balance: 15000.00)
-        
-        accountCellViewModels.append(savings)
-        accountCellViewModels.append(chequing)
-        accountCellViewModels.append(visa)
-        accountCellViewModels.append(masterCard)
-        accountCellViewModels.append(investment1)
-        accountCellViewModels.append(investment2)
-    }
-}
 
 //MARK: Networking
 extension AccountSummaryViewController {
     private func fetchData() {
         let group = DispatchGroup()
         
+        // Testing - random number selection
+        let userId = String(Int.random(in: 1..<4))
+        
+        fetchProfile(group: group, userId: userId)
+        fetchAccounts(group: group, userId: userId)
+        
+        group.notify(queue: .main) {
+            self.reloadView()
+        }
+    }
+    
+    private func fetchProfile(group: DispatchGroup, userId: String) {
         group.enter()
-        fetchProfile(forUserId: "1", completion: { result in
+        profileManager.fetchProfile(forUserId: userId) { result in
             switch result {
-            case .success(let profile) :
+            case .success(let profile):
                 self.profile = profile
-                self.configureTableViewHeader(with: profile)
-      
-            case .failure(let error) :
-                print(error.localizedDescription)
+            case .failure(let error):
+                self.displayError(error)
             }
             group.leave()
-        })
-        
+        }
+    }
+    
+    private func fetchAccounts(group: DispatchGroup, userId: String) {
         group.enter()
-        fetchAccounts(forUserId: "1") { result in
+        fetchAccounts(forUserId: userId) { result in
             switch result {
             case .success(let accounts):
                 self.accounts = accounts
-                self.configureTableCells(with: accounts)
-                
             case .failure(let error):
-                print(error.localizedDescription)
+                self.displayError(error)
             }
             group.leave()
         }
-        
-        group.notify(queue: .main){
-            self.isLoaded = true
-            self.tableView.reloadData()
-            self.refreshControl.endRefreshing()
+    }
+}
+
+extension AccountSummaryViewController {
+    private func displayError(_ error: NetworkError) {
+        let titleAndMessage = titleAndMessage(for: error)
+        self.showErrorAlert(title: titleAndMessage.0, message: titleAndMessage.1)
+    }
+    
+    private func titleAndMessage(for error: NetworkError) -> (String, String) {
+        let title: String
+        let message: String
+        switch error {
+        case .serverError:
+            title = "Server Error"
+            message = "We could not process your request. Please try again."
+        case .decodingError:
+            title = "Network Error"
+            message = "Ensure you are connected to the internet. Please try again."
         }
-       
+        return (title, message)
+    }
+        
+    private func reloadView() {
+        self.tableView.refreshControl?.endRefreshing()
+        
+        guard let profile = self.profile else { return }
+        
+        self.isLoaded = true
+        self.configureTableViewHeader(with: profile)
+        self.configureTableCells(with: self.accounts)
+        self.tableView.reloadData()
     }
     
     private func configureTableViewHeader(with profile : Profile){
@@ -213,5 +237,22 @@ extension AccountSummaryViewController {
         accountCellViewModels = accounts.map {
             AccountSummaryCell.ViewModel(accountType: $0.type, accountName: $0.name, balance: $0.amount)
         }
+    }
+    
+    private func showErrorAlert(title : String, message : String ) {
+        errorAlert.title = title
+        errorAlert.message = message
+        present(errorAlert,animated: true,completion: nil)
+    }
+}
+
+// MARK: Unit testing
+extension AccountSummaryViewController {
+    func titleAndMessageForTesting(for error: NetworkError) -> (String, String) {
+        return titleAndMessage(for: error)
+    }
+    
+    func forceFetchProfile() {
+        fetchProfile(group: DispatchGroup(), userId: "1")
     }
 }
