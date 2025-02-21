@@ -10,6 +10,7 @@ import UIKit
 class ViewController : UIViewController {
     
     let passwordTextField = PasswordTextField(placeHolderText: "Nuova Password")
+    let passwordCriteriaView = PasswordCriteriaView(text: "uppercase letter (A-Z)" )
     
     lazy var stackView : UIStackView = {
         let stackView = UIStackView()
@@ -32,9 +33,12 @@ class ViewController : UIViewController {
         view.backgroundColor = .systemBackground
         
         passwordTextField.translatesAutoresizingMaskIntoConstraints = false
+        passwordCriteriaView.translatesAutoresizingMaskIntoConstraints = false
+        
         
         view.addSubview(stackView)
-        stackView.addArrangedSubview(passwordTextField)
+//        stackView.addArrangedSubview(passwordTextField)
+        stackView.addArrangedSubview(passwordCriteriaView)
         
         NSLayoutConstraint.activate([
             stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
