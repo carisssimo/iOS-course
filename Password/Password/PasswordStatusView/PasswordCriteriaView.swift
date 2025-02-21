@@ -11,6 +11,7 @@ import UIKit
 
 class PasswordCriteriaView : UIView {
     
+    
     let stackView : UIStackView = {
         let stackView = UIStackView()
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -41,7 +42,7 @@ class PasswordCriteriaView : UIView {
     let circleImage = UIImage(systemName: "circle")!.withTintColor(.tertiaryLabel, renderingMode: .alwaysOriginal)
     
     override var intrinsicContentSize: CGSize {
-        return CGSize(width: 200, height: 40)
+        return CGSize(width: 200, height: 10)
     }
     
     init(text : String ) {
@@ -72,6 +73,7 @@ class PasswordCriteriaView : UIView {
     }
     
     private func setup() {
+        
         addSubview(stackView)
         stackView.addArrangedSubview(imageView)
         stackView.addArrangedSubview(label)

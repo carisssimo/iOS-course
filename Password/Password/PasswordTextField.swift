@@ -47,7 +47,7 @@ class PasswordTextField: UIView, UITextFieldDelegate {
 //        label.minimumScaleFactor = 0.8
         label.numberOfLines = 0
         label.isHidden = false
-        label.text = "Enter your password. frgghfghgfhfjjghkjgkghfhsfgsfghfsghshgfshsfhsfgfgsfg"
+        label.text = "Enter your password"
         return label
     }()
     
