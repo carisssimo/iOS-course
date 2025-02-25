@@ -8,7 +8,13 @@
 
 import UIKit
 
+protocol PasswordTextFieldDelegate : AnyObject {
+    func editingChanged(sender: PasswordTextField)
+}
+
 class PasswordTextField: UIView, UITextFieldDelegate {
+    
+    weak var delegate : PasswordTextFieldDelegate?
     
     let lockimageView = UIImageView(image: UIImage(systemName: "lock.fill"))
     
@@ -82,6 +88,7 @@ extension PasswordTextField {
         lockimageView.translatesAutoresizingMaskIntoConstraints = false
         
         textField.delegate = self
+        textField.addTarget(self, action: #selector(textFieldEditingChanged), for: .editingChanged)
     }
     
     func layout() {
@@ -124,5 +131,9 @@ extension  PasswordTextField {
     @objc private func eyeButtonTapped(){
         textField.isSecureTextEntry.toggle()
         eyeButton.isSelected.toggle()
+    }
+    
+    @objc func textFieldEditingChanged(sender: UITextField){
+        delegate?.editingChanged(sender: self)
     }
 }

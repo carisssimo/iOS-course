@@ -42,6 +42,7 @@ class ViewController : UIViewController {
         view.backgroundColor = .systemBackground
         
         passwordTextField.translatesAutoresizingMaskIntoConstraints = false
+        passwordTextField.delegate = self
         passwordStatusView.translatesAutoresizingMaskIntoConstraints = false
         
         passwordStatusView.layer.cornerRadius = 5
@@ -63,3 +64,13 @@ class ViewController : UIViewController {
     }
 }
 
+extension ViewController :PasswordTextFieldDelegate {
+    func editingChanged(sender: PasswordTextField) {
+        if sender == passwordTextField {
+            passwordStatusView.updateDisplay(sender.textField.text ?? "")
+
+        }
+    }
+    
+    
+}
