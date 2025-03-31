@@ -45,6 +45,7 @@ class AccountSummaryViewController: UIViewController {
         super.viewDidLoad()
         setupViews()
         fetchData()
+        
     }
 }
 
@@ -82,7 +83,7 @@ extension AccountSummaryViewController {
             tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
     }
-    
+     
     private func setupTableHeaderView(){
         accountSummaryHeaderView = AccountSummaryHeaderView(frame: .zero)
         var size = accountSummaryHeaderView.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
@@ -144,6 +145,7 @@ extension  AccountSummaryViewController {
         setupSkeletons()
         tableView.reloadData()
         fetchData()
+        
     }
     
     private func reset(){
@@ -156,43 +158,36 @@ extension  AccountSummaryViewController {
 
 //MARK: Networking
 extension AccountSummaryViewController {
+    
     private func fetchData() {
-        let group = DispatchGroup()
-        
-        // Testing - random number selection
         let userId = String(Int.random(in: 1..<4))
         
-        fetchProfile(group: group, userId: userId)
-        fetchAccounts(group: group, userId: userId)
+        Task {
+            async let profile = fetchProfile(userId: userId)
+            async let accounts = fetchAccounts(userId: userId)
+
+            // Aspettiamo entrambi i risultati prima di procedere
+            await profile
+            await accounts
+            
+            reloadView()
+        }
         
-        group.notify(queue: .main) {
-            self.reloadView()
+    }
+    
+    private func fetchProfile(userId: String) async {
+        do {
+            self.profile = try await profileManager.fetchProfile(forUserId: userId)
+        } catch {
+            self.displayError(error as? NetworkError ?? .serverError) //gestione dell' errore nel caso in cui
         }
     }
     
-    private func fetchProfile(group: DispatchGroup, userId: String) {
-        group.enter()
-        profileManager.fetchProfile(forUserId: userId) { result in
-            switch result {
-            case .success(let profile):
-                self.profile = profile
-            case .failure(let error):
-                self.displayError(error)
-            }
-            group.leave()
-        }
-    }
-    
-    private func fetchAccounts(group: DispatchGroup, userId: String) {
-        group.enter()
-        fetchAccounts(forUserId: userId) { result in
-            switch result {
-            case .success(let accounts):
-                self.accounts = accounts
-            case .failure(let error):
-                self.displayError(error)
-            }
-            group.leave()
+    private func fetchAccounts(userId: String) async {
+        do {
+            self.accounts = try await fetchAccounts(forUserId: userId)
+        } catch {
+            self.displayError(error as? NetworkError ?? .serverError)
         }
     }
 }
@@ -253,6 +248,8 @@ extension AccountSummaryViewController {
     }
     
     func forceFetchProfile() {
-        fetchProfile(group: DispatchGroup(), userId: "1")
+        Task {
+            await fetchProfile(userId: "1")
+        }
     }
 }

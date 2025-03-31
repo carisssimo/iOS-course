@@ -8,7 +8,7 @@
 import Foundation
 
 protocol ProfileManageable: AnyObject {
-    func fetchProfile(forUserId userId: String, completion: @escaping (Result<Profile,NetworkError>) -> Void)
+    func fetchProfile(forUserId userId: String) async throws -> Profile
 }
 
 enum NetworkError: Error {
@@ -28,24 +28,19 @@ struct Profile: Codable {
     }
 }
 
-class ProfileManager : ProfileManageable {
-    func fetchProfile(forUserId userId: String, completion: @escaping (Result<Profile,NetworkError>) -> Void) {
+class ProfileManager: ProfileManageable {
+    func fetchProfile(forUserId userId: String) async throws -> Profile {
         let url = URL(string: "https://fierce-retreat-36855.herokuapp.com/bankey/profile/\(userId)")!
         
-        URLSession.shared.dataTask(with: url) { data, response, error in
-            DispatchQueue.main.async {
-                guard let data = data, error == nil else {
-                    completion(.failure(.serverError))
-                    return
-                }
-                
-                do {
-                    let profile = try JSONDecoder().decode(Profile.self, from: data)
-                    completion(.success(profile))
-                } catch {
-                    completion(.failure(.decodingError))
-                }
-            }
-        }.resume()
+        let (data, _) = try await URLSession.shared.data(from: url)
+        
+        do {
+            let profile = try JSONDecoder().decode(Profile.self, from: data)
+            return profile
+        } catch {
+            throw NetworkError.decodingError
+        }
+        
+        
     }
 }
